@@ -1,5 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Bootcamp.Application\Bootcamp.Application.csproj" />
   </ItemGroup>
   <PropertyGroup>
