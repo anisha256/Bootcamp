@@ -1,5 +1,4 @@
-﻿using Bootcamp.Application.Common.Interface.Services;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
