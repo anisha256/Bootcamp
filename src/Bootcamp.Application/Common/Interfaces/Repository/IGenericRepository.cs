@@ -8,7 +8,7 @@
         void Update(T entity);
         Task DeleteAsync(T entity);
         Task<IQueryable<T>> GetAllAsync();
-        Task<T> GetByIdAsync(Guid? id);
+        Task<T> GetByIdAsync(Guid id);
 
 
     }

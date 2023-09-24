@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bootcamp.WebAPI.Controller
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class ItemController : ControllerBase
     {
@@ -22,7 +22,6 @@ namespace Bootcamp.WebAPI.Controller
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("create")]
         public async Task<GenericAPIResponse<string>> Create([FromBody]ItemRequestDto model,CancellationToken cancellationToken)
         {
             var response = new GenericAPIResponse<string>();
@@ -34,15 +33,32 @@ namespace Bootcamp.WebAPI.Controller
             }
             return response;
         }
+        /// <summary>
+        /// api to update the item
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
 
-    /*    [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id)
+        [HttpPut("{id}")]
+        public async Task<GenericAPIResponse<string>> Update(Guid id, [FromBody]ItemRequestDto request)
         {
-            return NoContent();
-        }*/
+            var response = new GenericAPIResponse<string>();
+            var res = await _itemService.UpdateItem(request,id);
+            if (res != null)
+            {
+                response.Success = res.Success;
+                response.Message = res.Message;
+            }
+            return response;
+        }
 
-        [HttpDelete("{id}")]
-        [Route("delete")]
+        /// <summary>
+        /// api to delete the item
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
         public async Task<GenericAPIResponse<string>> Delete(Guid id)
         {
             var response = new GenericAPIResponse<string>();

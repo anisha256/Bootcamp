@@ -25,7 +25,7 @@ namespace Bootcamp.Infrastructure.Repository
             return _context.Set<T>().AsNoTracking();
         }
 
-        public async Task<T> GetByIdAsync(Guid? id)
+        public async Task<T> GetByIdAsync(Guid id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
