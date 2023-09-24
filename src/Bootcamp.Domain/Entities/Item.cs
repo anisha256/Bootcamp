@@ -2,7 +2,7 @@
 using Bootcamp.Domain;
 using Bootcamp.Domain.Entities;
 
-namespace Bootcamp.WebAPI.Modals
+namespace Bootcamp.Domain.Entities
 {
     public class Item : AuditableEnttity
     {

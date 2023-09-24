@@ -1,6 +1,4 @@
 ﻿
-using Bootcamp.Domain.Entities;
-using Bootcamp.WebAPI.Modals;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bootcamp.Domain.Entities

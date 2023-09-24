@@ -1,9 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bootcamp.Domain\Bootcamp.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Category\Write\" />
+    <Folder Include="Category\Read\" />
+    <Folder Include="Item\Read\" />
   </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>

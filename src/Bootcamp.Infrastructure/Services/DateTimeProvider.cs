@@ -1,4 +1,4 @@
-﻿using Bootcamp.Application.Common.Interface.Services;
+﻿using Bootcamp.Application.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
