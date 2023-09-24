@@ -1,5 +1,4 @@
 ﻿using Bootcamp.Domain.Entities;
-using Bootcamp.WebAPI.Modals;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Reflection.Emit;

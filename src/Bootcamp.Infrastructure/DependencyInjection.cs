@@ -1,4 +1,4 @@
-﻿using Bootcamp.Application.Interfaces.Services;
+﻿using Bootcamp.Application.Common.Interface.Services;
 using Bootcamp.Infrastructure.Persistence;
 using Bootcamp.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
