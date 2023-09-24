@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Bootcamp.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial_migrations : Migration
+    public partial class initial_migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -76,12 +76,14 @@ namespace Bootcamp.Infrastructure.Migrations
                         name: "FK_CategoriesItems_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CategoriesItems_Items_ItemId",
                         column: x => x.ItemId,
                         principalTable: "Items",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

@@ -26,23 +26,6 @@ namespace Bootcamp.Infrastructure.Persistence
             builder.Entity<Item>().HasQueryFilter(e => e.DeleteFlag == false);
             builder.Entity<CategoryItem>().HasQueryFilter(e => e.DeleteFlag == false);
 
-            builder.Entity<CategoryItem>()
-            .HasKey(ci => ci.Id);
-
-            builder.Entity<CategoryItem>()
-                .HasOne(ci => ci.Category)
-                .WithMany(c => c.CategoryItems)
-                .HasForeignKey(ci => ci.CategoryId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder.Entity<CategoryItem>()
-                .HasOne(ci => ci.Item)
-                .WithMany(i => i.CategoryItems)
-                .HasForeignKey(ci => ci.ItemId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-
-
 
         }
 

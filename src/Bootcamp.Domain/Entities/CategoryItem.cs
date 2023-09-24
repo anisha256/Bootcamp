@@ -1,6 +1,7 @@
 ﻿
 using Bootcamp.Domain.Entities;
 using Bootcamp.WebAPI.Modals;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bootcamp.Domain.Entities
 {
@@ -11,9 +12,11 @@ namespace Bootcamp.Domain.Entities
 
         }
         public Guid Id { get; set; }
+        [ForeignKey("Category")]
         public Guid CategoryId { get; set; }
-        public Category Category { get; set; }
+        public virtual Category Category { get; set; }
+        [ForeignKey("Item")]
         public Guid ItemId { get; set; }
-        public Item Item { get; set; }
+        public virtual Item Item { get; set; }
     }
 }

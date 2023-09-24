@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bootcamp.Infrastructure.Migrations
 {
     [DbContext(typeof(BootcampDbContext))]
-    [Migration("20230923175738_initial_migrations")]
-    partial class initial_migrations
+    [Migration("20230924040702_initial_migration")]
+    partial class initial_migration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -159,13 +159,13 @@ namespace Bootcamp.Infrastructure.Migrations
                     b.HasOne("Bootcamp.WebAPI.Modals.Category", "Category")
                         .WithMany("CategoryItems")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bootcamp.WebAPI.Modals.Item", "Item")
                         .WithMany("CategoryItems")
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");

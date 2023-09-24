@@ -156,13 +156,13 @@ namespace Bootcamp.Infrastructure.Migrations
                     b.HasOne("Bootcamp.WebAPI.Modals.Category", "Category")
                         .WithMany("CategoryItems")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Bootcamp.WebAPI.Modals.Item", "Item")
                         .WithMany("CategoryItems")
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
