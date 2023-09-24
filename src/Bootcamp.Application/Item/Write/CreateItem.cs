@@ -4,7 +4,7 @@ using Bootcamp.Application.Item.Dto;
 using Bootcamp.Application.Models;
 using Bootcamp.Domain.Entities;
 
-namespace Bootcamp.Application.ItemServices.Write
+namespace Bootcamp.Application.Item.Write
 {
     public class CreateItem
     {
