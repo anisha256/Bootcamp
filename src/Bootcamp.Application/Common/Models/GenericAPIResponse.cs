@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bootcamp.Application.Models
+namespace Bootcamp.Application.Common.Models
 {
     public class GenericAPIResponse<T>
     {

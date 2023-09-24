@@ -1,5 +1,5 @@
-﻿using Bootcamp.Application.Interfaces;
-using Bootcamp.Application.Interfaces.Repository;
+﻿using Bootcamp.Application.Common.Interfaces;
+using Bootcamp.Application.Common.Interfaces.Repository;
 using Bootcamp.Infrastructure.Persistence;
 using Bootcamp.Infrastructure.Repository;
 using System;

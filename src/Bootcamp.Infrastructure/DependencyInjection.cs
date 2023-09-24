@@ -1,5 +1,7 @@
-﻿using Bootcamp.Application.Interfaces;
-using Bootcamp.Application.Interfaces.Services;
+﻿using Bootcamp.Application.Common.Interfaces;
+using Bootcamp.Application.Common.Interfaces.Services;
+using Bootcamp.Application.Item.Interface;
+using Bootcamp.Application.Item.ItemServices;
 using Bootcamp.Infrastructure.Persistence;
 using Bootcamp.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;

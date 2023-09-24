@@ -1,6 +1,4 @@
-﻿
-
-namespace Bootcamp.Application.Interfaces.Repository
+﻿namespace Bootcamp.Application.Common.Interfaces.Repository
 {
     public interface IGenericRepository<T> where T : class
     {

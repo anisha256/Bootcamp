@@ -1,4 +1,4 @@
-﻿using Bootcamp.Application.Interfaces.Repository;
+﻿using Bootcamp.Application.Common.Interfaces.Repository;
 using Bootcamp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
