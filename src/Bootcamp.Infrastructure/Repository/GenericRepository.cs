@@ -1,7 +1,7 @@
 ﻿using Bootcamp.Application.Interfaces.Repository;
 using Bootcamp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
- 
+
 
 namespace Bootcamp.Infrastructure.Repository
 {
@@ -9,7 +9,7 @@ namespace Bootcamp.Infrastructure.Repository
     {
         protected readonly BootcampDbContext _context;
 
-        public GenericRepository(BootcampDbContext  context)
+        public GenericRepository(BootcampDbContext context)
         {
             _context = context;
         }
@@ -26,17 +26,25 @@ namespace Bootcamp.Infrastructure.Repository
 
         public async Task<T> GetByIdAsync(Guid? id)
         {
-            return await  _context.Set<T>().FindAsync(id);
+            return await _context.Set<T>().FindAsync(id);
+        }
+
+        public async Task<Guid> InsertAndGetIdAsync(T entity)
+        {
+            await _context.Set<T>().AddAsync(entity);
+            await _context.SaveChangesAsync();
+            Guid TId = (Guid)entity.GetType().GetProperty("Id").GetValue(entity, null);
+            return TId;
         }
 
         public async Task InsertAsync(T entity)
         {
-           await _context.Set<T>().AddAsync(entity);
+            await _context.Set<T>().AddAsync(entity);
         }
 
         public void Update(T entity)
         {
-           _context.Set<T>().Update(entity);
+            _context.Set<T>().Update(entity);
         }
     }
 }

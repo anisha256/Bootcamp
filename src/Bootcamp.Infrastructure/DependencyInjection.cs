@@ -1,4 +1,5 @@
-﻿using Bootcamp.Application.Interfaces.Services;
+﻿using Bootcamp.Application.Interfaces;
+using Bootcamp.Application.Interfaces.Services;
 using Bootcamp.Infrastructure.Persistence;
 using Bootcamp.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace Bootcamp.Infrastructure
                 , builder => builder.MigrationsAssembly(typeof(BootcampDbContext).Assembly.FullName)
                 ));
             services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;
         }
     }

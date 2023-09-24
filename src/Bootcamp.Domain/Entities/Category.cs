@@ -1,7 +1,5 @@
 ﻿
 
-using Bootcamp.Domain;
-using Bootcamp.Domain.Entities;
 
 namespace Bootcamp.Domain.Entities
 {
