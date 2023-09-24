@@ -6,7 +6,7 @@
         Task InsertAsync(T entity);
         Task<Guid> InsertAndGetIdAsync(T entity);
         void Update(T entity);
-        void Delete(T entity);
+        Task DeleteAsync(T entity);
         Task<IQueryable<T>> GetAllAsync();
         Task<T> GetByIdAsync(Guid? id);
 

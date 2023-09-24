@@ -6,7 +6,7 @@ using Bootcamp.Domain.Entities;
 
 namespace Bootcamp.Application.Item.ItemServices
 {
-    public class ItemService :IItemService
+    public class ItemService : IItemService
     {
         private readonly IUnitOfWork _unitOfWork;
         public ItemService(IUnitOfWork unitOfWork)
@@ -61,5 +61,30 @@ namespace Bootcamp.Application.Item.ItemServices
             return response;
         }
 
+  
+   
+        public async Task<GenericAPIResponse<string>> DeleteItem(Guid id)
+        {
+            var response = new GenericAPIResponse<string>();
+            var cancellationToken = new CancellationToken();
+            response.Success = false;
+            try
+            {
+                var getItemById = await _unitOfWork.GenericRepository<Bootcamp.Domain.Entities.Item>().GetByIdAsync(id);
+                if (getItemById == null)
+                {
+                    response.Message = "Item not found!!";
+                }
+                getItemById.DeletedOn = DateTime.UtcNow;
+                await _unitOfWork.GenericRepository<Bootcamp.Domain.Entities.Item>().DeleteAsync(getItemById);
+               
+                await _unitOfWork.CommitAsync(cancellationToken);
+
+            }catch(Exception ex)
+            {
+                response.Message= "Failed to delete item," + ex.Message;
+            }
+            return response;
+        }
     }
 }

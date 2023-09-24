@@ -14,9 +14,10 @@ namespace Bootcamp.Infrastructure.Repository
             _context = context;
         }
 
-        public void Delete(T entity)
+        public  Task DeleteAsync(T entity)
         {
             _context.Set<T>().Remove(entity);
+            return Task.CompletedTask;
         }
 
         public async Task<IQueryable<T>> GetAllAsync()

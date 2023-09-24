@@ -32,20 +32,27 @@ namespace Bootcamp.WebAPI.Controller
                 response.Success = res.Success;
                 response.Message = res.Message;
             }
-
             return response;
         }
 
-     /*   [HttpPut("{id}")]
+    /*    [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id)
         {
             return NoContent();
-        }
+        }*/
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [Route("delete")]
+        public async Task<GenericAPIResponse<string>> Delete(Guid id)
         {
-            return NoContent();
-        }*/
+            var response = new GenericAPIResponse<string>();
+            var res = await _itemService.DeleteItem(id);
+            if (res != null)
+            {
+                response.Success = res.Success;
+                response.Message = res.Message;
+            }
+            return response;
+        }
     }
 }
