@@ -1,4 +1,5 @@
 ﻿
+using Bootcamp.Domain.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bootcamp.Domain.Entities
