@@ -104,6 +104,7 @@ namespace Bootcamp.Application.Item.ItemServices
                     else
                     {
 
+
                         categoryItem.CategoryId = request.CategoryId;
                         categoryItem.ModifiedOn = DateTime.UtcNow;
                         _unitOfWork.GenericRepository<CategoryItem>().Update(categoryItem);
@@ -112,8 +113,8 @@ namespace Bootcamp.Application.Item.ItemServices
 
                         response.Success = true;
                         response.Message = "Item updated successfully";
-                        response.Data = id.ToString();
                     }
+
                 }
             }
             catch (OperationCanceledException)
@@ -181,6 +182,53 @@ namespace Bootcamp.Application.Item.ItemServices
             }
 
             return response;
+        }
+
+        public ItemResponseDto GetItemById(Guid id)
+        {
+            try
+            {
+                var categoryItems = _unitOfWork.GenericRepository<CategoryItem>().GetAllAsync().Result;
+                var categoryDetails = _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result;
+
+                var getCategoriesOfItem = (from c in categoryItems
+                                         join cd in categoryDetails
+                                         on c.CategoryId equals cd.Id
+                                           where c.ItemId == id
+                                         select new ItemCategories
+                                         {
+                                            CategoryId = cd.Id,
+                                             CategoryName = cd.Name
+                                         }).ToList();
+
+                var item = _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.FirstOrDefault(x=>x.Id == id);
+                if(item == null)
+                {
+                    throw new Exception("Item not found");
+                }
+
+                var response = new ItemResponseDto()
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Description = item.Description,
+                    Price = item.Price,
+                    ImageUrl = item.ImageUrl,
+                    Quantity = item.Quantity,
+                    ThresholdQuantity = item.ThresholdQuantity,
+                    IsAvailable = item.IsAvailable,
+                    CreatedOn = item.CreatedOn,
+                    ItemCategories = getCategoriesOfItem
+
+                };
+                 
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Cannot fetch the item ", ex);
+            }
         }
     }
 }

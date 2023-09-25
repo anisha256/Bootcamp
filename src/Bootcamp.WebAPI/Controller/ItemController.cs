@@ -70,5 +70,16 @@ namespace Bootcamp.WebAPI.Controller
             }
             return response;
         }
+        /// <summary>
+        /// api to get the item details by id 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        public  ItemResponseDto GetItemDetailsById(Guid id)
+        {
+            
+            return  _itemService.GetItemById(id);
+        }
     }
 }
