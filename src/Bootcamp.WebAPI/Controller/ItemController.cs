@@ -22,7 +22,7 @@ namespace Bootcamp.WebAPI.Controller
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<GenericAPIResponse<string>> Create([FromBody]ItemRequestDto model,CancellationToken cancellationToken)
+        public async Task<GenericAPIResponse<string>> Create([FromBody]ItemRequestDto model)
         {
             var response = new GenericAPIResponse<string>();
             var res = await _itemService.AddItem(model);
