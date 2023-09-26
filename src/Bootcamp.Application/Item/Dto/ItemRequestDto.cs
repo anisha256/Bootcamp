@@ -15,6 +15,8 @@ namespace Bootcamp.Application.Item.Dto
         public string? ImageUrl { get; set; }
         public int ThresholdQuantity { get; set; }
         public bool IsAvailable { get; set; }
-        public Guid CategoryId { get; set; }
+        public List<Guid> Categories { get; set; }
     }
+
+  
 }

@@ -1,9 +1,7 @@
-﻿using Azure.Core;
-using Bootcamp.Application.Category.DTO;
+﻿using Bootcamp.Application.Category.DTO;
 using Bootcamp.Application.Category.Interface;
 using Bootcamp.Application.Common.Models;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace Bootcamp.WebAPI.Controller
