@@ -43,7 +43,7 @@ namespace Bootcamp.WebAPI.Controller
 
         [HttpPut]
         [Route("update")]
-        public async Task<GenericAPIResponse<string>> Update([FromBody]UpdateItemDto request)
+        public async Task<GenericAPIResponse<string>> Update([FromBody]UpdateItemRequestDto request)
         {
             var response = new GenericAPIResponse<string>();
             var res = await _itemService.UpdateItem(request);
@@ -85,7 +85,10 @@ namespace Bootcamp.WebAPI.Controller
         {
             return  await _itemService.GetItemById(id);
         }
-
+        /// <summary>
+        /// api to fetch all items
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("fetch-all")]
         public async Task<ActionResult<List<ItemResponseDto>>> GetAllItems()

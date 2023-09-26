@@ -23,6 +23,15 @@ namespace Bootcamp.Application.Item.ItemServices
             response.Success = false;
             try
             {
+                var validator = new ItemRequestDtoValidator();
+                var validationResult = validator.Validate(request);
+
+                if (!validationResult.IsValid)
+                {
+                    // Validation failed, set error messages and return response
+                    response.Message = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
+                    return response;
+                }
                 var itemAlreadyExists = _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.Any(x => x.Name.ToUpper() == request.Name.ToUpper());
                 if (itemAlreadyExists)
                 {
@@ -74,7 +83,7 @@ namespace Bootcamp.Application.Item.ItemServices
             return response;
         }
 
-        public async Task<GenericAPIResponse<string>> UpdateItem(UpdateItemDto request)
+        public async Task<GenericAPIResponse<string>> UpdateItem(UpdateItemRequestDto request)
         {
             var response = new GenericAPIResponse<string>();
             var cancellationToken = new CancellationToken();

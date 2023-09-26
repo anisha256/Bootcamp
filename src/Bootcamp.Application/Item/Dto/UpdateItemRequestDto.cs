@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bootcamp.Application.Item.Dto
 {
-    public class UpdateItemDto
+    public class UpdateItemRequestDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

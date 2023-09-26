@@ -11,7 +11,7 @@ namespace Bootcamp.Application.Item.Interface
     public interface IItemService
     {
         Task<GenericAPIResponse<string>> AddItem(ItemRequestDto request);
-        Task<GenericAPIResponse<string>> UpdateItem(UpdateItemDto request);
+        Task<GenericAPIResponse<string>> UpdateItem(UpdateItemRequestDto request);
         Task<GenericAPIResponse<string>> DeleteItem(Guid id);
         Task<ItemResponseDto> GetItemById(Guid id);
         Task<List<ItemResponseDto>> GetAllItems();
