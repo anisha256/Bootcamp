@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bootcamp.WebAPI.Controller
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ItemController : ControllerBase
     {
@@ -22,6 +22,7 @@ namespace Bootcamp.WebAPI.Controller
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost]
+        [Route("create")]
         public async Task<GenericAPIResponse<string>> Create([FromBody]ItemRequestDto model)
         {
             var response = new GenericAPIResponse<string>();
@@ -40,11 +41,12 @@ namespace Bootcamp.WebAPI.Controller
         /// <param name="request"></param>
         /// <returns></returns>
 
-        [HttpPut("{id}")]
-        public async Task<GenericAPIResponse<string>> Update(Guid id, [FromBody]ItemRequestDto request)
+        [HttpPut]
+        [Route("update")]
+        public async Task<GenericAPIResponse<string>> Update([FromBody]UpdateItemDto request)
         {
             var response = new GenericAPIResponse<string>();
-            var res = await _itemService.UpdateItem(request,id);
+            var res = await _itemService.UpdateItem(request);
             if (res != null)
             {
                 response.Success = res.Success;
@@ -58,8 +60,9 @@ namespace Bootcamp.WebAPI.Controller
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpPut("{id}")]
-        public async Task<GenericAPIResponse<string>> Delete(Guid id)
+        [HttpPut]
+        [Route("delete")]
+        public async Task<GenericAPIResponse<string>> Delete([FromQuery]Guid id)
         {
             var response = new GenericAPIResponse<string>();
             var res = await _itemService.DeleteItem(id);
@@ -71,15 +74,15 @@ namespace Bootcamp.WebAPI.Controller
             return response;
         }
         /// <summary>
-        /// api to get the item details by id 
+        /// api to fetch item details by id 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("{id}")]
-        public  ItemResponseDto GetItemDetailsById(Guid id)
+        [HttpGet]
+        [Route("fetch-by-id")]
+        public async Task<ActionResult<ItemResponseDto>> GetItemDetailsById([FromQuery]Guid id)
         {
-            
-            return  _itemService.GetItemById(id);
+            return  await _itemService.GetItemById(id);
         }
     }
 }

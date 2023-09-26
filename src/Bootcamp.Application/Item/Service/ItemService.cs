@@ -23,6 +23,12 @@ namespace Bootcamp.Application.Item.ItemServices
             response.Success = false;
             try
             {
+                var itemAlreadyExists = _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.Any(x => x.Name.ToUpper() == request.Name.ToUpper());
+                if (itemAlreadyExists)
+                {
+                    response.Message = "Item name already exists";
+                    return response;
+                }
                 var item = new Domain.Entities.Item();
                 item.Name = request.Name;
                 item.Description = request.Description ?? null;
@@ -36,14 +42,23 @@ namespace Bootcamp.Application.Item.ItemServices
                 if (itemId == Guid.Empty)
                 {
                     response.Message = "Item is not created!";
+                    return response;
 
                 }
-                var categoryItem = new CategoryItem();
-                categoryItem.ItemId = itemId;
-                categoryItem.CategoryId = request.CategoryId;
-                categoryItem.CreatedOn = DateTime.UtcNow;
-                await _unitOfWork.GenericRepository<CategoryItem>().InsertAsync(categoryItem);
+                if (request.Categories == null)
+                {
+                    response.Message = "At least 1 category should be selected.";
+                    return response;
+                }
 
+                foreach (var category in request.Categories)
+                {
+                    var categoryItem = new CategoryItem();
+                    categoryItem.ItemId = itemId;
+                    categoryItem.CategoryId = category;
+                    categoryItem.CreatedOn = DateTime.UtcNow;
+                    await _unitOfWork.GenericRepository<CategoryItem>().InsertAsync(categoryItem);
+                }
                 await _unitOfWork.CommitAsync(cancellationToken);
 
                 response.Success = true;
@@ -51,10 +66,6 @@ namespace Bootcamp.Application.Item.ItemServices
                 response.Data = itemId.ToString();
 
 
-            }
-            catch (OperationCanceledException)
-            {
-                response.Message = "Operation was canceled.";
             }
             catch (Exception ex)
             {
@@ -64,7 +75,7 @@ namespace Bootcamp.Application.Item.ItemServices
         }
 
 
-        public async Task<GenericAPIResponse<string>> UpdateItem(ItemRequestDto request, Guid id)
+        public async Task<GenericAPIResponse<string>> UpdateItem(UpdateItemDto request)
         {
             var response = new GenericAPIResponse<string>();
             var cancellationToken = new CancellationToken();
@@ -72,54 +83,74 @@ namespace Bootcamp.Application.Item.ItemServices
 
             try
             {
-                var item = await _unitOfWork.GenericRepository<Domain.Entities.Item>().GetByIdAsync(id);
-
+                var item = await _unitOfWork.GenericRepository<Domain.Entities.Item>().GetByIdAsync(request.Id);
                 if (item == null)
                 {
-                    response.Message = "Item not found";
+                    response.Message = "Item not found!!";
                 }
-                else
+                var itemCategories = _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.Where(category => request.Categories.Contains(category.Id)).ToList();
+
+                if (itemCategories.Count() != request.Categories.Count())
                 {
+                    response.Message = "Item Categories not found";
+                }
+
+                if (request.Name != null && request.Name.ToUpper() != item.Name.ToUpper())
+                {
+                    var alreadyExists = _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.Where(x => x.Name == request.Name).Any();
+                    if (alreadyExists)
+                    {
+                        response.Message = "Item Name already exists.";
+                    }
                     item.Name = request.Name;
-                    item.Description = request.Description ?? null;
-                    item.Quantity = request.Quantity;
-                    item.Price = request.Price;
-                    item.ThresholdQuantity = request.ThresholdQuantity;
-                    item.IsAvailable = request.IsAvailable;
+                }
 
-                    item.CreatedOn = DateTime.UtcNow;
+                item.Description = request.Description ?? null;
+                item.Quantity = request.Quantity;
+                item.Price = request.Price;
+                item.ThresholdQuantity = request.ThresholdQuantity;
+                item.IsAvailable = request.IsAvailable;
+                item.ImageUrl = request.ImageUrl;
 
-                    _unitOfWork.GenericRepository<Domain.Entities.Item>().Update(item);
+                var actualCategoriesOfItem = await _unitOfWork.GenericRepository<Domain.Entities.CategoryItem>().GetAllAsync().Result.Where(x => x.ItemId == request.Id).ToListAsync();
+                if (actualCategoriesOfItem == null)
+                {
+                    response.Message = "Failed to fetch item categories.";
+                    return response;
+                }
 
-                    var categoryItem = await _unitOfWork.GenericRepository<CategoryItem>()
-                        .GetAllAsync()
-                        .Result
-                        .Where(x => x.ItemId == id)
-                        .FirstOrDefaultAsync();
+                var categoryToAdd = itemCategories.Where(i => !actualCategoriesOfItem.Where(a => a.CategoryId == i.Id).Any()).ToList();
+                var categoryToRemove = actualCategoriesOfItem.Where(x => !itemCategories.Where(i => i.Id == x.CategoryId).Any()).ToList();
 
-                    if (categoryItem == null)
+                foreach (var category in categoryToAdd)
+                {
+                    var newItemCategory = new CategoryItem()
                     {
-                        response.Message = "Category item not found";
-                    }
-                    else
-                    {
-
-
-                        categoryItem.CategoryId = request.CategoryId;
-                        categoryItem.ModifiedOn = DateTime.UtcNow;
-                        _unitOfWork.GenericRepository<CategoryItem>().Update(categoryItem);
-
-                        await _unitOfWork.CommitAsync(cancellationToken);
-
-                        response.Success = true;
-                        response.Message = "Item updated successfully";
-                    }
+                        CategoryId = category.Id,
+                        ItemId = item.Id,
+                        ModifiedOn = DateTime.UtcNow,
+                    };
+                    await _unitOfWork.GenericRepository<CategoryItem>().InsertAsync(newItemCategory);
 
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                response.Message = "Operation was canceled.";
+
+                foreach (var category in categoryToRemove)
+                {
+
+                    await _unitOfWork.GenericRepository<CategoryItem>().DeleteAsync(category);
+
+                }
+
+                _unitOfWork.GenericRepository<Domain.Entities.Item>().Update(item);
+
+
+
+                await _unitOfWork.CommitAsync(cancellationToken);
+
+                response.Success = true;
+                response.Message = "Item updated successfully";
+
+
             }
             catch (Exception ex)
             {
@@ -143,39 +174,31 @@ namespace Bootcamp.Application.Item.ItemServices
                 {
                     response.Message = "Item not found";
                 }
-                else
+                item.DeleteFlag = true;
+                item.DeletedOn = DateTime.UtcNow;
+                _unitOfWork.GenericRepository<Domain.Entities.Item>().Update(item);
+
+                var categoryItem = await _unitOfWork.GenericRepository<CategoryItem>()
+                  .GetAllAsync()
+                  .Result
+                  .Where(x => x.ItemId == id)
+                  .FirstOrDefaultAsync();
+                if (categoryItem == null)
                 {
-                    item.DeleteFlag = true;
-                    item.DeletedOn = DateTime.UtcNow;
-                    _unitOfWork.GenericRepository<Domain.Entities.Item>().Update(item);
-                    var categoryItem = await _unitOfWork.GenericRepository<CategoryItem>()
-                      .GetAllAsync()
-                      .Result
-                      .Where(x => x.ItemId == id)
-                      .FirstOrDefaultAsync();
-
-                    if (categoryItem == null)
-                    {
-                        response.Message = "Category item not found";
-                    }
-                    else
-                    {
-                        categoryItem.DeleteFlag = true;
-                        categoryItem.DeletedOn = DateTime.UtcNow;
-
-                        _unitOfWork.GenericRepository<CategoryItem>().Update(categoryItem);
-                        await _unitOfWork.CommitAsync(cancellationToken);
-
-                        response.Success = true;
-                        response.Message = "Item deleted successfully";
-                    }
+                    response.Message = "Category item not found";
                 }
+                categoryItem.DeleteFlag = true;
+                categoryItem.DeletedOn = DateTime.UtcNow;
+
+                _unitOfWork.GenericRepository<CategoryItem>().Update(categoryItem);
+                await _unitOfWork.CommitAsync(cancellationToken);
+
+                response.Success = true;
+                response.Message = "Item deleted successfully";
+
 
             }
-            catch (OperationCanceledException)
-            {
-                response.Message = "Operation was canceled.";
-            }
+
             catch (Exception ex)
             {
                 response.Message = "Failed to delete Item: " + ex.Message;
@@ -184,25 +207,26 @@ namespace Bootcamp.Application.Item.ItemServices
             return response;
         }
 
-        public ItemResponseDto GetItemById(Guid id)
+        public Task<ItemResponseDto> GetItemById(Guid id)
         {
             try
             {
-                var categoryItems = _unitOfWork.GenericRepository<CategoryItem>().GetAllAsync().Result;
+                var categoryItems = _unitOfWork.GenericRepository<CategoryItem>().GetAllAsync().Result.ToList();
                 var categoryDetails = _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result;
 
                 var getCategoriesOfItem = (from c in categoryItems
-                                         join cd in categoryDetails
-                                         on c.CategoryId equals cd.Id
+                                           join cd in categoryDetails
+                                           on c.CategoryId equals cd.Id
                                            where c.ItemId == id
-                                         select new ItemCategories
-                                         {
-                                            CategoryId = cd.Id,
-                                             CategoryName = cd.Name
-                                         }).ToList();
+                                           && c.DeleteFlag != true
+                                           select new ItemCategories
+                                           {
+                                               CategoryId = cd.Id,
+                                               CategoryName = cd.Name
+                                           }).ToList();
 
-                var item = _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.FirstOrDefault(x=>x.Id == id);
-                if(item == null)
+                var item = _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.FirstOrDefault(x => x.Id == id);
+                if (item == null)
                 {
                     throw new Exception("Item not found");
                 }
@@ -218,11 +242,12 @@ namespace Bootcamp.Application.Item.ItemServices
                     ThresholdQuantity = item.ThresholdQuantity,
                     IsAvailable = item.IsAvailable,
                     CreatedOn = item.CreatedOn,
-                    ItemCategories = getCategoriesOfItem
+                    DeleteFlag = item.DeleteFlag,
+                    ItemCategories = getCategoriesOfItem ?? null
 
                 };
-                 
-                return response;
+
+                return Task.FromResult(response);
 
             }
             catch (Exception ex)
