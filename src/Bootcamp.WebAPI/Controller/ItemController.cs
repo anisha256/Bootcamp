@@ -73,6 +73,7 @@ namespace Bootcamp.WebAPI.Controller
             }
             return response;
         }
+
         /// <summary>
         /// api to fetch item details by id 
         /// </summary>
@@ -83,6 +84,13 @@ namespace Bootcamp.WebAPI.Controller
         public async Task<ActionResult<ItemResponseDto>> GetItemDetailsById([FromQuery]Guid id)
         {
             return  await _itemService.GetItemById(id);
+        }
+
+        [HttpGet]
+        [Route("fetch-all")]
+        public async Task<ActionResult<List<ItemResponseDto>>> GetAllItems()
+        {
+            return await _itemService.GetAllItems();
         }
     }
 }

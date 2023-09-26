@@ -74,7 +74,6 @@ namespace Bootcamp.Application.Item.ItemServices
             return response;
         }
 
-
         public async Task<GenericAPIResponse<string>> UpdateItem(UpdateItemDto request)
         {
             var response = new GenericAPIResponse<string>();
@@ -159,7 +158,6 @@ namespace Bootcamp.Application.Item.ItemServices
 
             return response;
         }
-
 
         public async Task<GenericAPIResponse<string>> DeleteItem(Guid id)
         {
@@ -253,6 +251,54 @@ namespace Bootcamp.Application.Item.ItemServices
             catch (Exception ex)
             {
                 throw new Exception("Cannot fetch the item ", ex);
+            }
+        }
+
+        public async Task<List<ItemResponseDto>> GetAllItems()
+        {
+            try
+            {
+                //get the categories 
+                var categories = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.ToListAsync();
+                //get the list of Categoryitems
+                var categoryItems = await _unitOfWork.GenericRepository<Domain.Entities.CategoryItem>().GetAllAsync().Result.ToListAsync();
+                //get the list of items 
+                var items = await _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.ToListAsync();
+
+                return (from ci in categoryItems
+                             join i in items
+                             on ci.ItemId equals i.Id
+                             select new ItemResponseDto
+                             {
+                                 Id = i.Id,
+                                 Name = i.Name,
+                                 Description = i.Description,
+                                 ImageUrl = i.ImageUrl,
+                                 Quantity = i.Quantity,
+                                 Price = i.Price,
+                                 ThresholdQuantity = i.ThresholdQuantity,
+                                 IsAvailable = i.IsAvailable,
+                                 CreatedOn = i.CreatedOn,
+                                 DeleteFlag = i.DeleteFlag,
+                                 ItemCategories = (from ci2 in categoryItems
+                                                   join c in categories
+                                                   on ci2.CategoryId equals c.Id
+                                                   where ci2.ItemId == i.Id
+                                                   select new ItemCategories
+                                                   {
+                                                       CategoryId = c.Id,
+                                                       CategoryName = c.Name
+                                                   }
+                                                    ).ToList()
+
+
+                             }).ToList();
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Cannot fetch items", ex);
             }
         }
     }
