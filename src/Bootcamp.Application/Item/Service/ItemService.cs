@@ -181,8 +181,10 @@ namespace Bootcamp.Application.Item.ItemServices
                 {
                     response.Message = "Item not found";
                 }
+
                 item.DeleteFlag = true;
                 item.DeletedOn = DateTime.UtcNow;
+
                 _unitOfWork.GenericRepository<Domain.Entities.Item>().Update(item);
 
                 var categoryItem = await _unitOfWork.GenericRepository<CategoryItem>()
@@ -190,6 +192,7 @@ namespace Bootcamp.Application.Item.ItemServices
                   .Result
                   .Where(x => x.ItemId == id)
                   .FirstOrDefaultAsync();
+
                 if (categoryItem == null)
                 {
                     response.Message = "Category item not found";
@@ -198,11 +201,10 @@ namespace Bootcamp.Application.Item.ItemServices
                 categoryItem.DeletedOn = DateTime.UtcNow;
 
                 _unitOfWork.GenericRepository<CategoryItem>().Update(categoryItem);
-                await _unitOfWork.CommitAsync(cancellationToken);
 
+                await _unitOfWork.CommitAsync(cancellationToken);
                 response.Success = true;
                 response.Message = "Item deleted successfully";
-
 
             }
 
@@ -218,11 +220,12 @@ namespace Bootcamp.Application.Item.ItemServices
         {
             try
             {
-                var categoryItems = _unitOfWork.GenericRepository<CategoryItem>().GetAllAsync().Result.ToList();
-                var categoryDetails = _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result;
+                var categoriesOfItem = _unitOfWork.GenericRepository<CategoryItem>().GetAllAsync().Result.ToList();
 
-                var getCategoriesOfItem = (from c in categoryItems
-                                           join cd in categoryDetails
+                var categories = _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result;
+
+                var getCategoriesOfItem = (from c in categoriesOfItem
+                                           join cd in categories
                                            on c.CategoryId equals cd.Id
                                            where c.ItemId == id
                                            && c.DeleteFlag != true
@@ -233,6 +236,7 @@ namespace Bootcamp.Application.Item.ItemServices
                                            }).ToList();
 
                 var item = _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.FirstOrDefault(x => x.Id == id);
+
                 if (item == null)
                 {
                     throw new Exception("Item not found");
@@ -270,38 +274,38 @@ namespace Bootcamp.Application.Item.ItemServices
                 //get the categories 
                 var categories = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.ToListAsync();
                 //get the list of Categoryitems
-                var categoryItems = await _unitOfWork.GenericRepository<Domain.Entities.CategoryItem>().GetAllAsync().Result.ToListAsync();
+                var categoriesOfItem = await _unitOfWork.GenericRepository<Domain.Entities.CategoryItem>().GetAllAsync().Result.ToListAsync();
                 //get the list of items 
                 var items = await _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.ToListAsync();
 
-                return (from ci in categoryItems
-                             join i in items
-                             on ci.ItemId equals i.Id
-                             select new ItemResponseDto
-                             {
-                                 Id = i.Id,
-                                 Name = i.Name,
-                                 Description = i.Description,
-                                 ImageUrl = i.ImageUrl,
-                                 Quantity = i.Quantity,
-                                 Price = i.Price,
-                                 ThresholdQuantity = i.ThresholdQuantity,
-                                 IsAvailable = i.IsAvailable,
-                                 CreatedOn = i.CreatedOn,
-                                 DeleteFlag = i.DeleteFlag,
-                                 ItemCategories = (from ci2 in categoryItems
-                                                   join c in categories
-                                                   on ci2.CategoryId equals c.Id
-                                                   where ci2.ItemId == i.Id
-                                                   select new ItemCategories
-                                                   {
-                                                       CategoryId = c.Id,
-                                                       CategoryName = c.Name
-                                                   }
-                                                    ).ToList()
+                return (from ci in categoriesOfItem
+                        join i in items
+                        on ci.ItemId equals i.Id
+                        select new ItemResponseDto
+                        {
+                            Id = i.Id,
+                            Name = i.Name,
+                            Description = i.Description,
+                            ImageUrl = i.ImageUrl,
+                            Quantity = i.Quantity,
+                            Price = i.Price,
+                            ThresholdQuantity = i.ThresholdQuantity,
+                            IsAvailable = i.IsAvailable,
+                            CreatedOn = i.CreatedOn,
+                            DeleteFlag = i.DeleteFlag,
+                            ItemCategories = (from ci2 in categoriesOfItem
+                                              join c in categories
+                                              on ci2.CategoryId equals c.Id
+                                              where ci2.ItemId == i.Id
+                                              select new ItemCategories
+                                              {
+                                                  CategoryId = c.Id,
+                                                  CategoryName = c.Name
+                                              }
+                                               ).ToList()
 
 
-                             }).ToList();
+                        }).ToList();
 
 
             }

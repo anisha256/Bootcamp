@@ -1,5 +1,5 @@
-﻿using Bootcamp.Application.Category.Dto.Service;
-using Bootcamp.Application.Category.Interface;
+﻿using Bootcamp.Application.Category.Interface;
+using Bootcamp.Application.Category.Service;
 using Bootcamp.Application.Item.Interface;
 using Bootcamp.Application.Item.ItemServices;
 using Microsoft.Extensions.DependencyInjection;

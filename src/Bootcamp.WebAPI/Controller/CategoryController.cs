@@ -1,4 +1,5 @@
-﻿using Bootcamp.Application.Category.DTO;
+﻿using Bootcamp.Application.Category.Dto;
+using Bootcamp.Application.Category.Service;
 using Bootcamp.Application.Category.Interface;
 using Bootcamp.Application.Common.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -76,6 +77,13 @@ namespace Bootcamp.WebAPI.Controller
         {
             var result = await categoryService.DeleteCategoryById(id);
             return result;
+        }
+
+        [HttpGet]
+        [Route("fetch-all-categories/items")]
+        public async Task<ActionResult<CategoryRequestDto>> GetCategoriesItem()
+        {
+            return await categoryService.GetCategoriesItems();
         }
 
     }

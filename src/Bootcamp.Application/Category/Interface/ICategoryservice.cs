@@ -1,10 +1,7 @@
-﻿using Bootcamp.Application.Category.DTO;
+﻿
+using Bootcamp.Application.Category.Dto;
 using Bootcamp.Application.Common.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Bootcamp.Application.Category.Interface
 {
@@ -15,5 +12,6 @@ namespace Bootcamp.Application.Category.Interface
         Task<GenericAPIResponse<string>> UpdateCategory( CategoryDto request);
         Task<CategoryDto> GetCategoryById(Guid id);
         Task<GenericAPIResponse<string>> DeleteCategoryById(Guid id);
+        Task<List<CategoryResponseDto>> GetCategoriesItems();
     }
 }
