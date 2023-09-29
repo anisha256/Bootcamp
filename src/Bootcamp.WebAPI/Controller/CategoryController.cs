@@ -10,7 +10,7 @@ namespace Bootcamp.WebAPI.Controller
     [ApiController]
     public class CategoryController : ControllerBase
     {
-       
+
         private readonly ICategoryservice categoryService;
         public CategoryController(ICategoryservice categoryservice)
         {
@@ -25,8 +25,8 @@ namespace Bootcamp.WebAPI.Controller
         [Route("fetch/all")]
         public async Task<ActionResult<List<CategoryDto>>> GetCategoriesAll()
         {
-            var result= await categoryService.GetAllCategory();
-            return result ;
+            var result = await categoryService.GetAllCategory();
+            return result;
         }
 
         /// <summary>
@@ -36,10 +36,10 @@ namespace Bootcamp.WebAPI.Controller
 
         [HttpPost]
         [Route("create")]
-        public async Task<ActionResult<GenericAPIResponse<string>>> CreateCategories( CategoryRequestDto request, CancellationToken cancellationToken)
+        public async Task<ActionResult<GenericAPIResponse<string>>> CreateCategories(CategoryRequestDto request)
         {
             //var reponse = new GenericAPIResponse<string>();
-            var result =  await categoryService.CreateCategory(request);
+            var result = await categoryService.CreateCategory(request);
             return result;
 
 
@@ -52,9 +52,9 @@ namespace Bootcamp.WebAPI.Controller
 
         [HttpPut]
         [Route("edit")]
-        public async Task<ActionResult<GenericAPIResponse<string>>> UpdateCategories( CategoryDto request)
+        public async Task<ActionResult<GenericAPIResponse<string>>> UpdateCategories(CategoryDto request)
         {
-             var result = await categoryService.UpdateCategory(request);
+            var result = await categoryService.UpdateCategory(request);
             return result;
         }
         /// <summary>

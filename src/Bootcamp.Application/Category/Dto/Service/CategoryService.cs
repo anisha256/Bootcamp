@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using Bootcamp.Domain.Entities;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Linq.Expressions;
+using Bootcamp.Application.Item.Dto;
+using FluentValidation;
 
 namespace Bootcamp.Application.Category.Dto.Service
 {
@@ -26,9 +28,18 @@ namespace Bootcamp.Application.Category.Dto.Service
         public async Task<GenericAPIResponse<string>> CreateCategory(CategoryRequestDto request)
         {
             var cancellationToken = new CancellationToken();
-            var  reponse=new GenericAPIResponse<string>();
+            var response = new GenericAPIResponse<string>();
             try
             {
+                var validator = new CategoryRequestDtoValidator();
+                var validationResult = validator.Validate(request);
+
+                if (!validationResult.IsValid)
+                {
+                    // Validation failed, set error messages and return response
+                    response.Message = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
+                    return response;
+                }
                 var entity = new Domain.Entities.Category
                 {
                     Name = request.Name,
@@ -38,16 +49,16 @@ namespace Bootcamp.Application.Category.Dto.Service
                 };
                 await unitOfWork.GenericRepository<Domain.Entities.Category>().InsertAsync(entity);
                 await unitOfWork.CommitAsync(cancellationToken);
-                reponse.Success = true;
-                reponse.Message = "Category created successfully";
+                response.Success = true;
+                response.Message = "Category created successfully";
             }
              catch (Exception ex)
             {
-                reponse.Message = ex.Message;
-                reponse.Success=false;
+                response.Message = ex.Message;
+                response.Success=false;
                 throw new Exception("Category canot create");
             }
-             return reponse;
+             return response;
             
             
         }
@@ -64,7 +75,9 @@ namespace Bootcamp.Application.Category.Dto.Service
             }
             else
             {
-                await unitOfWork.GenericRepository<Domain.Entities.Category>().DeleteAsync(category);
+                category.DeleteFlag = true;
+                category.DeletedOn = DateTime.UtcNow;
+                 unitOfWork.GenericRepository<Domain.Entities.Category>().Update(category);
                 await unitOfWork.CommitAsync(cancellationtoken);
                 response.Success = true;
                 response.Message = "Delete category successfully";
@@ -102,13 +115,20 @@ namespace Bootcamp.Application.Category.Dto.Service
         {
 
             var category = await unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(id);
-   
-            return new CategoryDto
-            {Id = category.Id, 
-               Name = category.Name,
-               CreatedOn = category.CreatedOn,
-               DeleteFlag=category.DeleteFlag
-            };
+            if (category != null) {
+                return new CategoryDto
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    CreatedOn = category.CreatedOn,
+                    DeleteFlag = category.DeleteFlag
+                };
+            }
+            else
+            {
+                return new CategoryDto();
+            }
+            
             
         }
 
@@ -122,6 +142,15 @@ namespace Bootcamp.Application.Category.Dto.Service
             }
             try
             {
+                var validator = new CategoryDtoValidator();
+                var validationResult = validator.Validate(request);
+
+                if (!validationResult.IsValid)
+                {
+                    // Validation failed, set error messages and return response
+                    response.Message = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
+                    return response;
+                }
                 var category =  await unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(request.Id);
                 if (category != null)
                 {
