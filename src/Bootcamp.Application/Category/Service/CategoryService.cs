@@ -1,5 +1,6 @@
 ﻿using Bootcamp.Application.Category.Dto;
 using Bootcamp.Application.Category.Interface;
+using Bootcamp.Application.Common.Exceptions;
 using Bootcamp.Application.Common.Interfaces;
 using Bootcamp.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
@@ -92,18 +93,22 @@ namespace Bootcamp.Application.Category.Service
 
         public async Task<CategoryDto> GetCategoryById(Guid id)
         {
-
             var category = await unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(id);
+            if (category == null)
+            {
+                throw new NotFoundException("Category not found!!");
+            }
 
-            return new CategoryDto
+            var response = new CategoryDto()
             {
                 Id = category.Id,
                 Name = category.Name,
                 CreatedOn = category.CreatedOn,
                 DeleteFlag = category.DeleteFlag
             };
-
+            return response;
         }
+
 
         public async Task<GenericAPIResponse<string>> UpdateCategory(CategoryDto request)
         {
@@ -150,40 +155,42 @@ namespace Bootcamp.Application.Category.Service
                 var categories = await unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.ToListAsync();
                 var items = await unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.ToListAsync();
                 var categoriesItems = await unitOfWork.GenericRepository<Domain.Entities.CategoryItem>().GetAllAsync().Result.ToListAsync();
-                return  (from c in categories
-                             join ci in categoriesItems
-                             on c.Id equals ci.CategoryId
-                             select new CategoryResponseDto
-                             {
-                                 Id = c.Id,
-                                 Name = c.Name,
-                                 CreatedOn = c.CreatedOn,
-                                 items = (from ci2 in categoriesItems
-                                          join i in items
-                                          on ci2.ItemId equals i.Id
-                                          where ci2.CategoryId ==  c.Id
-                                          select new CategoriesItems
-                                          {
-                                              Id = i.Id,
-                                              Name = i.Name,
-                                              Description = i.Description,
-                                              Price = i.Price,
-                                              Quantity = i.Quantity,
-                                              ThresholdQuantity = i.ThresholdQuantity,
-                                              ImageUrl = i.ImageUrl,
-                                              IsAvailable = i.IsAvailable,
-                                              DeleteFlag = i.DeleteFlag,
-                                              CreatedOn = i.CreatedOn
+                List<CategoryResponseDto> response = new List<CategoryResponseDto>();
+                response = (from c in categories
+                            join ci in categoriesItems
+                            on c.Id equals ci.CategoryId
+                            select new CategoryResponseDto
+                            {
+                                Id = c.Id,
+                                Name = c.Name,
+                                CreatedOn = c.CreatedOn,
+                                items = (from ci2 in categoriesItems
+                                         join i in items
+                                         on ci2.ItemId equals i.Id
+                                         where ci2.CategoryId == c.Id
+                                         select new CategoriesItems
+                                         {
+                                             Id = i.Id,
+                                             Name = i.Name,
+                                             Description = i.Description,
+                                             Price = i.Price,
+                                             Quantity = i.Quantity,
+                                             ThresholdQuantity = i.ThresholdQuantity,
+                                             ImageUrl = i.ImageUrl,
+                                             IsAvailable = i.IsAvailable,
+                                             DeleteFlag = i.DeleteFlag,
+                                             CreatedOn = i.CreatedOn
 
-                                          }
-
-
-                                          ).ToList()
+                                         }
 
 
-                             }
+                                         ).ToList()
+
+
+                            }
 
                              ).ToList();
+                return response;
 
             }
             catch (Exception ex)
@@ -196,4 +203,3 @@ namespace Bootcamp.Application.Category.Service
 }
 
 
-   

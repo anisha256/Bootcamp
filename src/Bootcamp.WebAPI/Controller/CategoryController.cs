@@ -81,7 +81,7 @@ namespace Bootcamp.WebAPI.Controller
 
         [HttpGet]
         [Route("fetch-all-categories/items")]
-        public async Task<ActionResult<CategoryRequestDto>> GetCategoriesItem()
+        public async Task<List<CategoryResponseDto>> GetCategoriesItem()
         {
             return await categoryService.GetCategoriesItems();
         }
