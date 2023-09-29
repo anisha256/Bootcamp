@@ -119,6 +119,39 @@ namespace Bootcamp.Application.UnitTests
             _unitOfWorkMock.Verify(uow => uow.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
+       /* [Fact]
+        public async Task CreateCategory_ShouldReturnCategoryAlreadyExistsResponse_WhenCategoryNameExists()
+        {
+            // Arrange
+             var categoryName = "ExistingCategory";
+            var request = new CategoryRequestDto { Name = categoryName };
+            var cancellationToken = new CancellationToken();
+            var output = new Domain.Entities.Category()
+            {
+                Name = categoryName
+            };
 
+
+            // Set up the repository mock to return an existing category with the same name
+            _categoryRepositoryMock
+                .Setup(repo => repo.GetAllAsync().Result.Any(x => x.Name.ToUpper() == categoryName.ToUpper()))
+                .Returns(true);
+               
+
+            _unitOfWorkMock
+                .Setup(uow => uow.GenericRepository<Domain.Entities.Category>())
+                .Returns(_categoryRepositoryMock.Object);
+
+
+            // Act
+            var response = await _sut.CreateCategory(request);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.Equal("Category name already exists!!", response.Message);
+            _categoryRepositoryMock.Verify(repo => repo.GetAllAsync(), Times.Once());
+            _unitOfWorkMock.Verify(uow => uow.CommitAsync(cancellationToken), Times.Never());
+        }
+*/
     }
 }

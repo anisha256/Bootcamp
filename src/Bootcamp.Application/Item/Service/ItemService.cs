@@ -1,4 +1,5 @@
-﻿using Bootcamp.Application.Common.Interfaces;
+﻿using Bootcamp.Application.Common.Exceptions;
+using Bootcamp.Application.Common.Interfaces;
 using Bootcamp.Application.Common.Models;
 using Bootcamp.Application.Item.Dto;
 using Bootcamp.Application.Item.Interface;
@@ -216,13 +217,13 @@ namespace Bootcamp.Application.Item.ItemServices
             return response;
         }
 
-        public Task<ItemResponseDto> GetItemById(Guid id)
+        public async Task<ItemResponseDto> GetItemById(Guid id)
         {
             try
             {
-                var categoriesOfItem = _unitOfWork.GenericRepository<CategoryItem>().GetAllAsync().Result.ToList();
+                var categoriesOfItem = await _unitOfWork.GenericRepository<CategoryItem>().GetAllAsync().Result.ToListAsync();
 
-                var categories = _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result;
+                var categories = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.ToListAsync();
 
                 var getCategoriesOfItem = (from c in categoriesOfItem
                                            join cd in categories
@@ -239,7 +240,7 @@ namespace Bootcamp.Application.Item.ItemServices
 
                 if (item == null)
                 {
-                    throw new Exception("Item not found");
+                    throw new NotFoundException("Item not found!!");
                 }
 
                 var response = new ItemResponseDto()
@@ -258,7 +259,7 @@ namespace Bootcamp.Application.Item.ItemServices
 
                 };
 
-                return Task.FromResult(response);
+                return response;
 
             }
             catch (Exception ex)
@@ -271,14 +272,12 @@ namespace Bootcamp.Application.Item.ItemServices
         {
             try
             {
-                //get the categories 
                 var categories = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.ToListAsync();
-                //get the list of Categoryitems
                 var categoriesOfItem = await _unitOfWork.GenericRepository<Domain.Entities.CategoryItem>().GetAllAsync().Result.ToListAsync();
-                //get the list of items 
                 var items = await _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.ToListAsync();
 
-                return (from ci in categoriesOfItem
+                List<ItemResponseDto> response = new List<ItemResponseDto>();
+                response =  (from ci in categoriesOfItem
                         join i in items
                         on ci.ItemId equals i.Id
                         select new ItemResponseDto
@@ -307,7 +306,7 @@ namespace Bootcamp.Application.Item.ItemServices
 
                         }).ToList();
 
-
+                return response;
             }
             catch (Exception ex)
             {

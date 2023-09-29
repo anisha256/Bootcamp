@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace Bootcamp.Application.Common.Exceptions
 {
-    public class NotFoundException : Exception
+    public class AlreadyExistsException :Exception
     {
-        public NotFoundException() : base()
-        {
-
-
+        public AlreadyExistsException(): base() { 
         }
-        public NotFoundException(string name) : base($"{name} not found!!")
+
+        public AlreadyExistsException(string name)
+        : base($"{name} already exists!!")
         {
         }
     }

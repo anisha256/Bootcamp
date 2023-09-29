@@ -9,18 +9,27 @@ namespace Bootcamp.Application.Category.Service
 {
     public class CategoryService : ICategoryservice
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         public CategoryService(IUnitOfWork unitOfWork)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
 
         }
         public async Task<GenericAPIResponse<string>> CreateCategory(CategoryRequestDto request)
         {
             var cancellationToken = new CancellationToken();
-            var reponse = new GenericAPIResponse<string>();
+            var response = new GenericAPIResponse<string>();
             try
             {
+                var alreadyExists = _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.Any(x => x.Name.ToUpper() == request.Name.ToUpper());
+                if(alreadyExists)
+                {
+                    response.Success = false;
+                    response.Message = "Category name already exists!!";
+                    return response;
+                    
+                }
+
                 var entity = new Domain.Entities.Category
                 {
                     Name = request.Name,
@@ -28,18 +37,18 @@ namespace Bootcamp.Application.Category.Service
                     DeleteFlag = false
 
                 };
-                await unitOfWork.GenericRepository<Domain.Entities.Category>().InsertAsync(entity);
-                await unitOfWork.CommitAsync(cancellationToken);
-                reponse.Success = true;
-                reponse.Message = "Category created successfully";
+                await _unitOfWork.GenericRepository<Domain.Entities.Category>().InsertAsync(entity);
+                await _unitOfWork.CommitAsync(cancellationToken);
+                response.Success = true;
+                response.Message = "Category created successfully";
             }
             catch (Exception ex)
             {
-                reponse.Message = ex.Message;
-                reponse.Success = false;
+                response.Message = ex.Message;
+                response.Success = false;
                 throw new Exception("Category canot create");
             }
-            return reponse;
+            return response;
 
 
         }
@@ -48,7 +57,7 @@ namespace Bootcamp.Application.Category.Service
         {
             var response = new GenericAPIResponse<string>();
             var cancellationtoken = new CancellationToken();
-            var category = await unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(id);
+            var category = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(id);
             if (category == null)
             {
                 response.Success = false;
@@ -56,8 +65,8 @@ namespace Bootcamp.Application.Category.Service
             }
             else
             {
-                await unitOfWork.GenericRepository<Domain.Entities.Category>().DeleteAsync(category);
-                await unitOfWork.CommitAsync(cancellationtoken);
+                await _unitOfWork.GenericRepository<Domain.Entities.Category>().DeleteAsync(category);
+                await _unitOfWork.CommitAsync(cancellationtoken);
                 response.Success = true;
                 response.Message = "Delete category successfully";
             }
@@ -70,7 +79,7 @@ namespace Bootcamp.Application.Category.Service
             try
             {
 
-                var query = unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.
+                var query = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.
                     Where(x => x.DeleteFlag == false)
                     .Select(x => new CategoryDto
                     {
@@ -79,7 +88,7 @@ namespace Bootcamp.Application.Category.Service
                         CreatedOn = x.CreatedOn,
                         DeleteFlag = x.DeleteFlag
 
-                    }).ToList();
+                    }).ToListAsync();
                 return query;
 
             }
@@ -90,13 +99,12 @@ namespace Bootcamp.Application.Category.Service
             return new List<CategoryDto>();
         }
 
-
         public async Task<CategoryDto> GetCategoryById(Guid id)
         {
-            var category = await unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(id);
+            var category = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(id);
             if (category == null)
             {
-                throw new NotFoundException("Category not found!!");
+                throw new NotFoundException("Category");
             }
 
             var response = new CategoryDto()
@@ -109,7 +117,6 @@ namespace Bootcamp.Application.Category.Service
             return response;
         }
 
-
         public async Task<GenericAPIResponse<string>> UpdateCategory(CategoryDto request)
         {
             var cancellationToken = new CancellationToken();
@@ -120,22 +127,22 @@ namespace Bootcamp.Application.Category.Service
             }
             try
             {
-                var category = await unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(request.Id);
+                var category = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetByIdAsync(request.Id);
                 if (category != null)
                 {
-                    var alreadyexist = unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result
+                    var alreadyexist = _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result
                         .Where(x => x.Name == request.Name);
                     if (alreadyexist.Any())
                     {
-                        throw new Exception("Category Name is already exists");
+                        throw new AlreadyExistsException("Category Name");
                     }
 
 
                 }
                 category.Name = request.Name;
                 category.ModifiedOn = DateTime.UtcNow;
-                unitOfWork.GenericRepository<Domain.Entities.Category>().Update(category);
-                await unitOfWork.CommitAsync(cancellationToken);
+                _unitOfWork.GenericRepository<Domain.Entities.Category>().Update(category);
+                await _unitOfWork.CommitAsync(cancellationToken);
                 response.Success = true;
                 response.Message = "Update Successfully";
             }
@@ -152,9 +159,9 @@ namespace Bootcamp.Application.Category.Service
         {
             try
             {
-                var categories = await unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.ToListAsync();
-                var items = await unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.ToListAsync();
-                var categoriesItems = await unitOfWork.GenericRepository<Domain.Entities.CategoryItem>().GetAllAsync().Result.ToListAsync();
+                var categories = await _unitOfWork.GenericRepository<Domain.Entities.Category>().GetAllAsync().Result.ToListAsync();
+                var items = await _unitOfWork.GenericRepository<Domain.Entities.Item>().GetAllAsync().Result.ToListAsync();
+                var categoriesItems = await _unitOfWork.GenericRepository<Domain.Entities.CategoryItem>().GetAllAsync().Result.ToListAsync();
                 List<CategoryResponseDto> response = new List<CategoryResponseDto>();
                 response = (from c in categories
                             join ci in categoriesItems
